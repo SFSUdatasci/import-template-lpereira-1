@@ -1,0 +1,70 @@
+---
+title: "a04_leticiap"
+name: Leticia Pereira 
+editor: visual
+---
+
+## Assignment 3: Tidy Data and Joins
+
+## Introduction
+
+This bird survey data was collected from the central Arizona-Phoenix metropolitan area by Arizona State University researchers and records bird counts in varying sites, throughout the year, by month.
+
+Reading in the data
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(here)
+library(lubridate)
+
+bird_observations = read_csv("Data/Raw/52_pp52_birds_1.csv")
+sites = read_csv("Data/Raw/52_pp52_sites_1.csv")
+surveys = read_csv("Data/Raw/52_pp52_surveys_1.csv")
+taxalist = read_csv("Data/Raw/52_pp52_taxalist_1.csv")
+```
+
+## Analysis
+
+Use lubridate::month() to add a new column to bird_obs_subset called survey_month, containing only the month number. Then, convert the month number to a factor (again within mutate()).
+
+```{r}
+bird_observations = bird_observations %>% 
+  rename(bird_obs_notes = notes)
+bird_obs_subset = bird_observations %>% 
+  full_join(y = taxalist, by = "species_id") %>% 
+  full_join(y = sites, by = "site_id") %>% 
+  full_join(y = surveys, by = c("site_id", "survey_id")) %>%  
+  select(survey_date, common_name, park_name, bird_count, observer)
+
+lubridate::month(surveys$survey_date)
+```
+
+Use dplyr::relocate() to move the new survey_month column to immediately after the survey_date column. You can do this in a separate code chunk, or pipe straight into it from your existing code.
+
+```{r}
+bird_obs_subset = bird_obs_subset %>%
+  mutate(survey_month = factor(lubridate::month(survey_date))) %>%
+  dplyr::relocate(survey_month, .after = survey_date)
+```
+
+Filter to only include parks Lindo, Orme, Palomino, and Sonrisa.
+
+```{r}
+bird_obs_subset = bird_obs_subset %>%
+  filter(park_name %in% c('Lindo', 'Orme', 'Palomino', 'Sonrisa' ))
+```
+
+Find the total number of birds observed by park and month (Hint: You can use group_by() and summarize()).
+
+```{r}
+bird_obs_park = bird_obs_subset %>%
+  group_by(park_name, survey_month) %>%
+  summarize(total_birds = sum(bird_count, NA.rm = TRUE), .groups = "drop")
+bird_obs_park
+```
+
+## Summary:
+
+It is informative on bird observations by month. I'm assuming the survey months correspond to the calender year so 1 = Jan, etc. I'm surprised in October and Janruary there are the least amount of birds across all sites, but there are comparable counts in September and December. I would have to have access to field notes to give a better explanation for that observation, and also figure out why there is no November data and bird migration patterns as well. The only unexpected outcome after coding, is that even though I coded to "drop" counts that were NA, they still show up. I initially had the NA.rm as lowercase (na.rm) but even after making it uppercase to mimic how it shows up in the data table, it didn't resolve it and drop the NA values.
