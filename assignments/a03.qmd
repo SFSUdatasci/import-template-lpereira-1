@@ -1,0 +1,43 @@
+---
+title: "a03"
+name: Leticia Pereira
+format: html
+---
+
+# Introduction
+
+This data show commercial salmon catches by region in the state of Alaska. This data is publicaly available under byerlySalmonByRegion.csv (file \# df35b.302.1) Data were collected based on required fish ticket reporting by commercial fishermen. Data pre-1969 are based on commercial fishing reports. With this data, I will be exploring ways to reformat and look at data so that it can fit a range of models or plot types. Using the rplyr and tidyr packages, I will reformat and learn how to make modifications to the data table.
+
+# Data Data sources Load the packages and libraries
+
+```{r}
+#install.packages("dplyr")
+#install.packages("tidyr")
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+
+# Analysis
+
+```{r}
+catch_original = read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+
+mean_region = catch_original %>%
+  select(-All, -notesRegCode) %>% 
+  mutate(Chinook = if_else(Chinook == "I", "1", Chinook)) %>% 
+  mutate(Chinook = as.numeric(Chinook)) %>% 
+  pivot_longer(-c(Region, Year), 
+               names_to = "species", 
+               values_to = "catch") %>%
+  mutate(catch = catch*1000) %>% 
+  group_by(Region) %>% 
+  summarize(mean_catch = mean(catch)) %>% 
+  arrange(desc(mean_catch))
+
+head(mean_region)
+```
+
+# Discussion
+
+After processing the caught fish data and isolating the mean catch of the Chinook salmon per region, we can learn useful information about the Chinook population. The SSE and BRB regions had the highest Chinook mean catch, nearly three times more than regions like SOP. Off of this small glimpse of the data, we can't quiet make conclusions about why SSE and BRB have higher mean catch, but if we were to add information like temperature when caught, elevation, time of year etc. we could build a full picture about the Chinook populations in these regions.  

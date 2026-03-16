@@ -17,6 +17,10 @@ Source: <https://learning.nceas.ucsb.edu/2024-10-coreR/session_05.html>
 
 ## About the data
 
+Leticia's Paragraph:
+
+This data set was collected in 2008 from the Arctic Ocean near the North Pole. It is important to analyze ocean data for the Redfield ratio to document changes in nutrients in the ocean. Nutrient levels in the ocean can differ due to upwelling (cold water rising from the depths), and climate change. This ratio (16 nitrogen : 1 phosphorus) is an important indicator of ocean health, and studying this ratio around the world can give us information on ocean chemistry and marine life evolution.
+
 The seawater chemistry dataset used here is `BGchem2008data.csv` (downloaded previously in the course).
 
 -   Date downloaded: August 8, 2025
@@ -40,7 +44,7 @@ Quarto runs R in the same way as a script: objects only exist after the chunks t
 Using `here()` is a convenient way to build paths relative to your project root (e.g., your `.qmd` might live in `scripts/` while data lives in `data/`).
 
 ```{r}
-bg_chem <- read_csv(here::here("data", "BGchem2008data.csv"))
+bg_chem = read_csv(here::here("Data/Raw", "BGchem2008data.csv"))
 ```
 
 (Optional) Quick peek at the data:
@@ -94,6 +98,10 @@ plot(
 ```
 
 # Conclusion
+
+Leticia's Paragraph:
+
+The ocean water plot above shows the Redfield ratio relationship. The most optimal nutrient ratio (N16+:P1+) is further down the plot, but shows how the nutrient levels are linear and proportional. The actual ratio from the data though, gave us a ratio of N6.2: P1, showing that the ocean location is not up to the Redfield framework. There are many factors that lead to nutrient depletion and more work would have to be done to determine why.
 
 In this mini-analysis, we:
 

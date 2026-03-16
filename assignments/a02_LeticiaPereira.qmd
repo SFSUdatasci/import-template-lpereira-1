@@ -1,0 +1,44 @@
+---
+title: "Literate Analysis with Ocean Water Samples"
+subtitle: "coreR Session 05 — Section 5.7 Practice"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+execute:
+  warning: false
+  message: false
+---
+
+# Introduction
+
+In this assignment we will be analyzing a data table for its "tidyness". This principle of data tidyness relies on three main rules: 1) Each column in your table is a variable. 2) Each row in your table is an observation.3) Each cell in your table contains a single value.
+
+By following these rules in your data storage and workflow, your data will be better organized, and easier to interpret and replicate by collaborators.
+
+# About the Data
+
+This data set was collected in 2008 from the Arctic Ocean near the North Pole. It is important to analyze ocean data for the Redfield ratio to document changes in nutrients in the ocean. Nutrient levels in the ocean can differ due to upwelling (cold water rising from the depths), and climate change. This ratio (16 nitrogen : 1 phosphorus) is an important indicator of ocean health, and studying this ratio around the world can give us information on ocean chemistry and marine life evolution.
+
+# Read in the data
+
+library(here) library(readr)
+
+bg_chem = read_csv(here::here("Data/Raw", "BGchem2008data.csv"))
+
+# Table
+
+```{r}
+head(bg_chem)
+```
+
+# Analysis: Tidiness Report
+
+Question 1: Is each column a variable? 
+Yes! Each column has a unique variable. FOr example, date, time, station, latitude, etc.
+
+Question 2: Is each row an observation?
+Yes!
+
+Question 3: Is each cell a single value?
+Yes!
