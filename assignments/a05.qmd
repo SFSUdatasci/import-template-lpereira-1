@@ -1,0 +1,113 @@
+---
+title: "a05 Data Visualization"
+name: Leticia Pereira
+editor: visual
+---
+
+## Introduction
+
+In my assignment five, I will be analyzing data from the publication "Sacramento-San Joaquin Delta Socioecological Monitoring" sponsored by UC Davis (Kraus-Polk et al. 2020). This data was collected to monitor the visitation types around various conservation sites in Northern California from 2013 to 2017. The data is separated by the name of the conservation site, and the type of visitor defined by the method of access (via boat, car, scientist, etc.).
+
+#reading in the packages and data
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(forcats) # makes working with factors easier
+library(ggplot2)
+library(leaflet) # interactive maps
+library(DT) # interactive tables
+library(scales) # scale functions for visualization
+library(janitor) # expedite cleaning and exploring data
+library(viridis) # colorblind friendly color palette
+```
+
+```{r}
+delta_visits_raw = read_csv(here::here("data/Socioecological_monitoring_data.csv"))
+
+# here I am going to pull up just the variable names so I can begin to familiarize myself better with the data.
+colnames(delta_visits_raw)
+
+## From when to when. here I am checking the range so I can add this info in my intro paragraph.
+range(delta_visits_raw$Date)
+
+```
+
+## Processing the Data
+
+```{r}
+
+# Here I am making a 'clean' data table names delta_visits so I can see all of the columns and rows and make sure my data is tidy before further processing. 
+
+delta_visits = delta_visits_raw %>% 
+    janitor::clean_names()
+colnames(delta_visits)
+
+#this code is relating the site location to its longitude and latitude coordinate values
+visits_long = delta_visits %>% 
+    pivot_longer(cols = c(sm_boat, med_boat, lrg_boat, bank_angler, scientist, cars),
+                 names_to = "visitor_type",
+                 values_to = "quantity") %>%
+    rename(restore_loc = eco_restore_approximate_location) %>% 
+    select(-notes)
+
+## Checking the outcome
+head(visits_long)
+daily_visits_loc <- visits_long %>%
+    group_by(restore_loc, date, visitor_type) %>% 
+    summarise(daily_visits = sum(quantity))
+```
+
+## Plotting Data
+
+```{r}
+# here I am setting up my ggplot conditions for data visualization as I build my graph to show type of visits per site. First I set the parameters for the graph stored in my_theme. 
+
+my_theme = theme_bw(base_size = 16) +
+    theme(legend.position = "bottom",
+          axis.ticks.y = element_blank())
+
+#I then continue to label the x and y axis, title, etc. of the bar graph. I then call my graph by typing 'my_theme'
+
+ggplot(data = daily_visits_loc,
+       aes(y = restore_loc, x = daily_visits, fill = visitor_type)) +
+    geom_col() +
+    labs(x = "Number of Visits",
+         y = "Restoration Location",
+         fill = "Type of Visitor",
+         title = "Total Number of Visits to Delta Restoration Areas by visitor type",
+         subtitle = "Sum of all visits during study period") +
+    my_theme
+
+```
+
+Figure 1.
+
+## Location
+
+```{r}
+# here I am defining the locations I want to use for the interactive map. I pull directly from the visits_log and specific sites restore_loc from the raw data. 
+
+locations = visits_long %>%
+    distinct(restore_loc, .keep_all = TRUE) %>%
+    select(restore_loc, latitude, longitude)
+
+head(locations) # check to see if everyhting is good.
+
+# I then use the leaflet() package to show my region of interest with the restoration sites labled. 
+
+leaflet(locations) %>%
+    addTiles() %>%
+    addMarkers(
+        lng = ~ longitude,
+        lat = ~ latitude,
+        popup = ~ restore_loc
+    )
+```
+
+Map 1.
+
+## Discussion
+
+After plotting the data, we can get a better idea of why the locations that were monitored have certain visitation patterns as graphed in figure 1. For example, Grizzly Bay had one of the highest visitation rates, and by the geographical location in the map, it makes sense that it would be the most accessible by boats rather than cars. However, not all of the data can be explained by analyzing the figure in conjunction with the map. Sites like Prospect seem geographically similar to a site like North Delta when just analyzing the map, however when we look at the data from figure 1, the pattern is completely different. North Delta has the highest car visitation rate, even though it seems to be relatively similarly positioned as Prospect. To address these observations, inforamation on road and parking accessibility, and boat permits needed by area are just a few examples of supporting information that would be needed to make a more comprehensive conclusion about the data shared in the assignment.
